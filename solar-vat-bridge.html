@@ -359,7 +359,7 @@ select option{background:var(--surface2);}
     </div>
     <div class="brand-title">
       <h1>Solar VAT Bridge</h1>
-      <p>JPK_V7M Generator · Solar ERP · Poland Tax · v0.1</p>
+      <p>JPK_V7M Generator · Solar ERP · Poland Tax · v0.2</p>
     </div>
   </div>
   <div class="header-right">
@@ -449,9 +449,9 @@ select option{background:var(--surface2);}
       <div class="card-body">
         <div class="inv-section">
           <div class="inv-section-title">Faktury sprzedaży</div>
-          <div class="col-labels">
-            <span>Kontrahent</span><span>Nr Faktury</span>
-            <span>Netto PLN</span><span>VAT PLN</span><span></span>
+          <div class="col-labels" style="grid-template-columns:90px 1fr 1fr 80px 80px 60px 28px;">
+            <span>NrKontrahenta</span><span>Nazwa</span><span>Nr Faktury</span>
+            <span>Netto PLN</span><span>VAT PLN</span><span>GTU</span><span></span>
           </div>
           <div class="inv-rows" id="sales-rows"></div>
           <button class="btn-add-row" onclick="addSale()">+ Dodaj fakturę sprzedaży</button>
@@ -468,8 +468,8 @@ select option{background:var(--surface2);}
       <div class="card-body">
         <div class="inv-section">
           <div class="inv-section-title">Faktury zakupu</div>
-          <div class="col-labels">
-            <span>Dostawca</span><span>Nr dok./faktury</span>
+          <div class="col-labels" style="grid-template-columns:90px 1fr 1fr 80px 80px 28px;">
+            <span>NrDostawcy</span><span>Nazwa dostawcy</span><span>Nr dok./faktury</span>
             <span>Netto PLN</span><span>VAT PLN</span><span></span>
           </div>
           <div class="inv-rows" id="purchase-rows"></div>
@@ -540,8 +540,8 @@ select option{background:var(--surface2);}
 let sales=[], purchases=[], xmlStr='';
 
 window.onload=()=>{
-  addSale('MAWI INVEST UAB','1/10/2025',700,161);
-  addPurchase('T-MOBILE Polska S.A.','507471870625',258.18,59.38);
+  addSale('5263769516','MAWI INVEST UAB UAB "MAWI INVEST"','1/10/2025',700,161,'GTU_13');
+  addPurchase('5261040567','T-MOBILE Polska S.A.','507471870625',258.18,59.38);
   recalc();
 };
 
@@ -557,34 +557,103 @@ function pad(n){ return String(n).padStart(2,'0'); }
 function sm(arr,k){ return arr.reduce((a,x)=>a+(parseFloat(x[k])||0),0); }
 function sv(id,v){ document.getElementById(id).textContent=v; }
 
-function addSale(k='',nr='',n=0,v=0){
-  sales.push({id:uid(),k,nr,n:n||0,v:v||0}); renderSales();
+function addSale(nrk='',k='',nr='',n=0,v=0,gtu=''){
+  sales.push({id:uid(),nrk,k,nr,n:n||0,v:v||0,gtu}); renderSales();
 }
 function removeSale(id){ sales=sales.filter(x=>x.id!==id); renderSales(); }
-function renderSales(){ renderRows('sales-rows',sales,'removeSale','updateSale'); recalc(); }
+function renderSales(){ renderSaleRows(); recalc(); }
 function updateSale(id,key,val){ const s=sales.find(x=>x.id===id); if(s){s[key]=val;recalc();} }
 
-function addPurchase(k='',nr='',n=0,v=0){
-  purchases.push({id:uid(),k,nr,n:n||0,v:v||0}); renderPurchases();
+function addPurchase(nrd='',k='',nr='',n=0,v=0){
+  purchases.push({id:uid(),nrd,k,nr,n:n||0,v:v||0}); renderPurchases();
 }
 function removePurchase(id){ purchases=purchases.filter(x=>x.id!==id); renderPurchases(); }
-function renderPurchases(){ renderRows('purchase-rows',purchases,'removePurchase','updatePurchase'); recalc(); }
+function renderPurchases(){ renderPurchaseRows(); recalc(); }
 function updatePurchase(id,key,val){ const p=purchases.find(x=>x.id===id); if(p){p[key]=val;recalc();} }
 
-function renderRows(cid,items,rmFn,upFn){
-  const c=document.getElementById(cid); c.innerHTML='';
-  items.forEach(item=>{
+const GTU_LIST=['','GTU_01','GTU_02','GTU_03','GTU_04','GTU_05','GTU_06','GTU_07',
+  'GTU_08','GTU_09','GTU_10','GTU_11','GTU_12','GTU_13'];
+
+function renderSaleRows(){
+  const c=document.getElementById('sales-rows'); c.innerHTML='';
+  sales.forEach(item=>{
     const row=document.createElement('div'); row.className='inv-row';
-    [['k',item.k,false,'Kontrahent'],['nr',item.nr,false,'Nr faktury'],
-     ['n',item.n||'',true,'0.00'],['v',item.v||'',true,'0.00']].forEach(([key,val,num,ph])=>{
-      const el=document.createElement('input');
-      el.type=num?'number':'text'; if(num){el.step='0.01';el.style.textAlign='right';}
-      el.value=val; el.placeholder=ph;
-      el.oninput=()=>window[upFn](item.id,key,num?(parseFloat(el.value)||0):el.value);
-      row.appendChild(el);
+    row.style.gridTemplateColumns='90px 1fr 1fr 80px 80px 60px 28px';
+    // NrKontrahenta
+    const enr=document.createElement('input'); enr.type='text';
+    enr.value=item.nrk; enr.placeholder='NIP/VAT';
+    enr.oninput=()=>updateSale(item.id,'nrk',enr.value);
+    row.appendChild(enr);
+    // NazwaKontrahenta
+    const ek=document.createElement('input'); ek.type='text';
+    ek.value=item.k; ek.placeholder='Nazwa';
+    ek.oninput=()=>updateSale(item.id,'k',ek.value);
+    row.appendChild(ek);
+    // Nr faktury
+    const enr2=document.createElement('input'); enr2.type='text';
+    enr2.value=item.nr; enr2.placeholder='Nr faktury';
+    enr2.oninput=()=>updateSale(item.id,'nr',enr2.value);
+    row.appendChild(enr2);
+    // Netto
+    const en=document.createElement('input'); en.type='number'; en.step='0.01';
+    en.style.textAlign='right'; en.value=item.n||''; en.placeholder='0.00';
+    en.oninput=()=>updateSale(item.id,'n',parseFloat(en.value)||0);
+    row.appendChild(en);
+    // VAT
+    const ev=document.createElement('input'); ev.type='number'; ev.step='0.01';
+    ev.style.textAlign='right'; ev.value=item.v||''; ev.placeholder='0.00';
+    ev.oninput=()=>updateSale(item.id,'v',parseFloat(ev.value)||0);
+    row.appendChild(ev);
+    // GTU select
+    const eg=document.createElement('select');
+    eg.style.cssText='width:100%;background:var(--bg2);border:1px solid var(--border2);border-radius:4px;padding:5px 4px;font-family:var(--mono);font-size:10px;color:var(--text);outline:none;';
+    GTU_LIST.forEach(g=>{
+      const o=document.createElement('option'); o.value=g; o.textContent=g||'—';
+      if(g===item.gtu) o.selected=true;
+      eg.appendChild(o);
     });
+    eg.onchange=()=>updateSale(item.id,'gtu',eg.value);
+    row.appendChild(eg);
+    // Del
     const btn=document.createElement('button'); btn.className='btn-del'; btn.textContent='✕';
-    btn.onclick=()=>window[rmFn](item.id); row.appendChild(btn);
+    btn.onclick=()=>removeSale(item.id); row.appendChild(btn);
+    c.appendChild(row);
+  });
+}
+
+function renderPurchaseRows(){
+  const c=document.getElementById('purchase-rows'); c.innerHTML='';
+  purchases.forEach(item=>{
+    const row=document.createElement('div'); row.className='inv-row';
+    row.style.gridTemplateColumns='90px 1fr 1fr 80px 80px 28px';
+    // NrDostawcy
+    const enrd=document.createElement('input'); enrd.type='text';
+    enrd.value=item.nrd; enrd.placeholder='NIP/VAT';
+    enrd.oninput=()=>updatePurchase(item.id,'nrd',enrd.value);
+    row.appendChild(enrd);
+    // NazwaDostawcy
+    const ek=document.createElement('input'); ek.type='text';
+    ek.value=item.k; ek.placeholder='Nazwa dostawcy';
+    ek.oninput=()=>updatePurchase(item.id,'k',ek.value);
+    row.appendChild(ek);
+    // Nr dok
+    const enr=document.createElement('input'); enr.type='text';
+    enr.value=item.nr; enr.placeholder='Nr faktury';
+    enr.oninput=()=>updatePurchase(item.id,'nr',enr.value);
+    row.appendChild(enr);
+    // Netto
+    const en=document.createElement('input'); en.type='number'; en.step='0.01';
+    en.style.textAlign='right'; en.value=item.n||''; en.placeholder='0.00';
+    en.oninput=()=>updatePurchase(item.id,'n',parseFloat(en.value)||0);
+    row.appendChild(en);
+    // VAT
+    const ev=document.createElement('input'); ev.type='number'; ev.step='0.01';
+    ev.style.textAlign='right'; ev.value=item.v||''; ev.placeholder='0.00';
+    ev.oninput=()=>updatePurchase(item.id,'v',parseFloat(ev.value)||0);
+    row.appendChild(ev);
+    // Del
+    const btn=document.createElement('button'); btn.className='btn-del'; btn.textContent='✕';
+    btn.onclick=()=>removePurchase(item.id); row.appendChild(btn);
     c.appendChild(row);
   });
 }
@@ -627,14 +696,16 @@ function generate(){
   sales.filter(s=>s.k||s.n).forEach((s,i)=>{
     const n=(parseFloat(s.n)||0).toFixed(2);
     const v=(parseFloat(s.v)||0).toFixed(2);
+    const gtuLine=s.gtu?`    <ns2:${s.gtu}>1</ns2:${s.gtu}>\n`:'';
+    const nrkLine=s.nrk?`    <ns2:NrKontrahenta>${ex(s.nrk)}</ns2:NrKontrahenta>\n`:'';
     sprzRows+=
 `  <ns2:SprzedazWiersz>
     <ns2:LpSprzedazy>${i+1}</ns2:LpSprzedazy>
     <ns2:KodKrajuNadaniaTIN>PL</ns2:KodKrajuNadaniaTIN>
-    <ns2:NazwaKontrahenta>${ex(s.k)}</ns2:NazwaKontrahenta>
+${nrkLine}    <ns2:NazwaKontrahenta>${ex(s.k)}</ns2:NazwaKontrahenta>
     <ns2:DowodSprzedazy>${ex(s.nr)}</ns2:DowodSprzedazy>
     <ns2:DataWystawienia>${dataEnd}</ns2:DataWystawienia>
-    <ns2:K_10>0.00</ns2:K_10>
+${gtuLine}    <ns2:K_10>0.00</ns2:K_10>
     <ns2:K_11>0.00</ns2:K_11>
     <ns2:K_12>0.00</ns2:K_12>
     <ns2:K_13>0.00</ns2:K_13>
@@ -665,16 +736,17 @@ function generate(){
   </ns2:SprzedazWiersz>\n`;
   });
 
-  // ── ZakupWiersz — K_42 + K_43 (exact decimals like referens 258.18 / 59.38) ──
+  // ── ZakupWiersz — NrDostawcy + K_42 + K_43 (exact decimals like referens 258.18 / 59.38) ──
   let zakRows='';
   purchases.filter(p=>p.k||p.n).forEach((p,i)=>{
     const n=(parseFloat(p.n)||0).toFixed(2);
     const v=(parseFloat(p.v)||0).toFixed(2);
+    const nrdLine=p.nrd?`    <ns2:NrDostawcy>${ex(p.nrd)}</ns2:NrDostawcy>\n`:'';
     zakRows+=
 `  <ns2:ZakupWiersz>
     <ns2:LpZakupu>${i+1}</ns2:LpZakupu>
     <ns2:KodKrajuNadaniaTIN>PL</ns2:KodKrajuNadaniaTIN>
-    <ns2:NazwaDostawcy>${ex(p.k)}</ns2:NazwaDostawcy>
+${nrdLine}    <ns2:NazwaDostawcy>${ex(p.k)}</ns2:NazwaDostawcy>
     <ns2:DowodZakupu>${ex(p.nr)}</ns2:DowodZakupu>
     <ns2:DataZakupu>${dataEnd}</ns2:DataZakupu>
     <ns2:K_42>${n}</ns2:K_42>
@@ -692,7 +764,7 @@ function generate(){
     <ns2:KodFormularza kodSystemowy="JPK_V7M (2)" wersjaSchemy="1-0E">JPK_VAT</ns2:KodFormularza>
     <ns2:WariantFormularza>2</ns2:WariantFormularza>
     <ns2:DataWytworzeniaJPK>${now}</ns2:DataWytworzeniaJPK>
-    <ns2:NazwaSystemu>Solar VAT Bridge v0.1</ns2:NazwaSystemu>
+    <ns2:NazwaSystemu>Solar VAT Bridge v0.2</ns2:NazwaSystemu>
     <ns2:CelZlozenia poz="P_7">${cel}</ns2:CelZlozenia>
     <ns2:KodUrzedu>${kod}</ns2:KodUrzedu>
     <ns2:Rok>${rok}</ns2:Rok>
