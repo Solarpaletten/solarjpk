@@ -757,14 +757,12 @@ ${nrdLine}    <ns2:NazwaDostawcy>${ex(p.k)}</ns2:NazwaDostawcy>
   const sc=sales.filter(s=>s.k||s.n).length;
   const pc=purchases.filter(p=>p.k||p.n).length;
 
-  xmlStr=`<?xml version="1.0" encoding="UTF-8"?>
-<ns2:JPK xmlns:ns2="http://crd.gov.pl/wzor/2021/12/27/11148/"
-         xmlns="http://crd.gov.pl/xml/schematy/dziedzinowe/mf/2021/06/08/eD/DefinicjeTypy/">
+  xmlStr=`<?xml version="1.0" encoding="UTF-8"?><ns2:JPK xmlns:ns2="http://crd.gov.pl/wzor/2021/12/27/11148/" xmlns="http://crd.gov.pl/xml/schematy/dziedzinowe/mf/2021/06/08/eD/DefinicjeTypy/">
   <ns2:Naglowek>
     <ns2:KodFormularza kodSystemowy="JPK_V7M (2)" wersjaSchemy="1-0E">JPK_VAT</ns2:KodFormularza>
     <ns2:WariantFormularza>2</ns2:WariantFormularza>
     <ns2:DataWytworzeniaJPK>${now}</ns2:DataWytworzeniaJPK>
-    <ns2:NazwaSystemu>Solar VAT Bridge v0.2</ns2:NazwaSystemu>
+    <ns2:NazwaSystemu>Solar-VAT-Bridge www.assetbilans.pl</ns2:NazwaSystemu>
     <ns2:CelZlozenia poz="P_7">${cel}</ns2:CelZlozenia>
     <ns2:KodUrzedu>${kod}</ns2:KodUrzedu>
     <ns2:Rok>${rok}</ns2:Rok>
