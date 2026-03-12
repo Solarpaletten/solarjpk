@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ns2:JPK xmlns:ns2="http://crd.gov.pl/wzor/2021/12/27/11148/"
+         xmlns="http://crd.gov.pl/xml/schematy/dziedzinowe/mf/2021/06/08/eD/DefinicjeTypy/">
+  <ns2:Naglowek>
+    <ns2:KodFormularza kodSystemowy="JPK_V7M (2)" wersjaSchemy="1-0E">JPK_VAT</ns2:KodFormularza>
+    <ns2:WariantFormularza>2</ns2:WariantFormularza>
+    <ns2:DataWytworzeniaJPK>2026-03-12T17:13:02+01:00</ns2:DataWytworzeniaJPK>
+    <ns2:NazwaSystemu>Solar VAT Bridge v0.1</ns2:NazwaSystemu>
+    <ns2:CelZlozenia poz="P_7">1</ns2:CelZlozenia>
+    <ns2:KodUrzedu>1438</ns2:KodUrzedu>
+    <ns2:Rok>2025</ns2:Rok>
+    <ns2:Miesiac>10</ns2:Miesiac>
+  </ns2:Naglowek>
+  <ns2:Podmiot1 rola="Podatnik">
+    <ns2:OsobaNiefizyczna>
+      <ns2:NIP>5252966590</ns2:NIP>
+      <ns2:PelnaNazwa>ASSET BILANS SPÓŁKA Z OGRANICZONĄ ODPOWIEDZIALNOŚCIĄ</ns2:PelnaNazwa>
+      <ns2:Email>assetbilans@gmail.com</ns2:Email>
+      <ns2:Telefon>+48732080955</ns2:Telefon>
+    </ns2:OsobaNiefizyczna>
+  </ns2:Podmiot1>
+  <ns2:Deklaracja>
+    <ns2:Naglowek>
+      <ns2:KodFormularzaDekl kodPodatku="VAT" kodSystemowy="VAT-7 (22)" rodzajZobowiazania="Z" wersjaSchemy="1-0E">VAT-7</ns2:KodFormularzaDekl>
+      <ns2:WariantFormularzaDekl>22</ns2:WariantFormularzaDekl>
+    </ns2:Naglowek>
+    <ns2:PozycjeSzczegolowe>
+      <ns2:P_10>0</ns2:P_10>
+      <ns2:P_11>0</ns2:P_11>
+      <ns2:P_12>0</ns2:P_12>
+      <ns2:P_13>0</ns2:P_13>
+      <ns2:P_14>0</ns2:P_14>
+      <ns2:P_15>0</ns2:P_15>
+      <ns2:P_16>0</ns2:P_16>
+      <ns2:P_17>0</ns2:P_17>
+      <ns2:P_18>0</ns2:P_18>
+      <ns2:P_19>700</ns2:P_19>
+      <ns2:P_20>161</ns2:P_20>
+      <ns2:P_21>0</ns2:P_21>
+      <ns2:P_22>0</ns2:P_22>
+      <ns2:P_23>0</ns2:P_23>
+      <ns2:P_24>0</ns2:P_24>
+      <ns2:P_25>0</ns2:P_25>
+      <ns2:P_26>0</ns2:P_26>
+      <ns2:P_27>0</ns2:P_27>
+      <ns2:P_28>0</ns2:P_28>
+      <ns2:P_29>0</ns2:P_29>
+      <ns2:P_30>0</ns2:P_30>
+      <ns2:P_31>0</ns2:P_31>
+      <ns2:P_32>0</ns2:P_32>
+      <ns2:P_33>0</ns2:P_33>
+      <ns2:P_34>0</ns2:P_34>
+      <ns2:P_35>0</ns2:P_35>
+      <ns2:P_36>0</ns2:P_36>
+      <ns2:P_37>700</ns2:P_37>
+      <ns2:P_38>161</ns2:P_38>
+      <ns2:P_39>0</ns2:P_39>
+      <ns2:P_40>0</ns2:P_40>
+      <ns2:P_41>0</ns2:P_41>
+      <ns2:P_42>258</ns2:P_42>
+      <ns2:P_43>59</ns2:P_43>
+      <ns2:P_44>0</ns2:P_44>
+      <ns2:P_45>0</ns2:P_45>
+      <ns2:P_46>0</ns2:P_46>
+      <ns2:P_47>0</ns2:P_47>
+      <ns2:P_48>59</ns2:P_48>
+      <ns2:P_49>0</ns2:P_49>
+      <ns2:P_50>0</ns2:P_50>
+      <ns2:P_51>102</ns2:P_51>
+      <ns2:P_52>0</ns2:P_52>
+      <ns2:P_53>0</ns2:P_53>
+      <ns2:P_62>0</ns2:P_62>
+      <ns2:P_68>0</ns2:P_68>
+      <ns2:P_69>0</ns2:P_69>
+    </ns2:PozycjeSzczegolowe>
+    <ns2:Pouczenia>1</ns2:Pouczenia>
+  </ns2:Deklaracja>
+  <ns2:Ewidencja>
+  <ns2:SprzedazWiersz>
+    <ns2:LpSprzedazy>1</ns2:LpSprzedazy>
+    <ns2:KodKrajuNadaniaTIN>PL</ns2:KodKrajuNadaniaTIN>
+    <ns2:NazwaKontrahenta>MAWI INVEST UAB</ns2:NazwaKontrahenta>
+    <ns2:DowodSprzedazy>1/10/2025</ns2:DowodSprzedazy>
+    <ns2:DataWystawienia>2025-10-31</ns2:DataWystawienia>
+    <ns2:K_10>0.00</ns2:K_10>
+    <ns2:K_11>0.00</ns2:K_11>
+    <ns2:K_12>0.00</ns2:K_12>
+    <ns2:K_13>0.00</ns2:K_13>
+    <ns2:K_14>0.00</ns2:K_14>
+    <ns2:K_15>0.00</ns2:K_15>
+    <ns2:K_16>0.00</ns2:K_16>
+    <ns2:K_17>0.00</ns2:K_17>
+    <ns2:K_18>0.00</ns2:K_18>
+    <ns2:K_19>700.00</ns2:K_19>
+    <ns2:K_20>161.00</ns2:K_20>
+    <ns2:K_21>0.00</ns2:K_21>
+    <ns2:K_22>0.00</ns2:K_22>
+    <ns2:K_23>0.00</ns2:K_23>
+    <ns2:K_24>0.00</ns2:K_24>
+    <ns2:K_25>0.00</ns2:K_25>
+    <ns2:K_26>0.00</ns2:K_26>
+    <ns2:K_27>0.00</ns2:K_27>
+    <ns2:K_28>0.00</ns2:K_28>
+    <ns2:K_29>0.00</ns2:K_29>
+    <ns2:K_30>0.00</ns2:K_30>
+    <ns2:K_31>0.00</ns2:K_31>
+    <ns2:K_32>0.00</ns2:K_32>
+    <ns2:K_33>0.00</ns2:K_33>
+    <ns2:K_34>0.00</ns2:K_34>
+    <ns2:K_35>0.00</ns2:K_35>
+    <ns2:K_36>0.00</ns2:K_36>
+    <ns2:SprzedazVAT_Marza>0.00</ns2:SprzedazVAT_Marza>
+  </ns2:SprzedazWiersz>
+
+    <ns2:SprzedazCtrl>
+      <ns2:LiczbaWierszySprzedazy>1</ns2:LiczbaWierszySprzedazy>
+      <ns2:PodatekNalezny>161.00</ns2:PodatekNalezny>
+    </ns2:SprzedazCtrl>
+  <ns2:ZakupWiersz>
+    <ns2:LpZakupu>1</ns2:LpZakupu>
+    <ns2:KodKrajuNadaniaTIN>PL</ns2:KodKrajuNadaniaTIN>
+    <ns2:NazwaDostawcy>T-MOBILE Polska S.A.</ns2:NazwaDostawcy>
+    <ns2:DowodZakupu>507471870625</ns2:DowodZakupu>
+    <ns2:DataZakupu>2025-10-31</ns2:DataZakupu>
+    <ns2:K_42>258.18</ns2:K_42>
+    <ns2:K_43>59.38</ns2:K_43>
+  </ns2:ZakupWiersz>
+
+    <ns2:ZakupCtrl>
+      <ns2:LiczbaWierszyZakupow>1</ns2:LiczbaWierszyZakupow>
+      <ns2:PodatekNaliczony>59.38</ns2:PodatekNaliczony>
+    </ns2:ZakupCtrl>
+  </ns2:Ewidencja>
+</ns2:JPK>
