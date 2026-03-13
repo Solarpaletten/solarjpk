@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Solar VAT Bridge — JPK_V7M Generator v0.5.1</title>
+<title>Solar VAT Bridge — JPK_V7M Generator</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
@@ -519,6 +519,7 @@ select option{background:var(--surface2);}
     </div>
     <div class="card-actions">
       <button class="btn-primary" onclick="generate()">⬇ Generuj JPK_V7M XML</button>
+      <button class="btn-ghost" onclick="previewPDF()" style="border-color:#6B4FBB;color:#6B4FBB;">📄 Podgląd PDF</button><!--New v0.6-->
       <button class="btn-ghost" onclick="copyXML()">📋 Kopiuj XML</button>
       <button class="btn-ghost" onclick="downloadXML()">💾 Pobierz .xml</button>
       <button class="btn-ghost" onclick="downloadAndSend()" style="border-color:var(--sun);color:var(--sun);">🚀 Pobierz + Wyślij do MF</button><!--New v0.5-->
@@ -526,6 +527,20 @@ select option{background:var(--surface2);}
       <button class="btn-ghost" onclick="resetForm()">✕ Wyczyść</button>
     </div>
     <input type="file" id="jpk-file-input" accept=".xml" style="display:none" onchange="onJPKFileLoaded(event)"><!--New v0.4-->
+
+  <!-- PDF Preview Modal v0.6 -->
+  <div id="pdf-modal" style="display:none;position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,0.55);backdrop-filter:blur(3px);align-items:center;justify-content:center;"><!--New v0.6-->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;width:720px;max-width:96vw;max-height:92vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,0.3);">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 18px;background:var(--surface2);border-bottom:1px solid var(--border);">
+        <div style="font-family:var(--display);font-weight:800;font-size:13px;color:var(--text);">📄 Podgląd deklaracji JPK_V7M</div>
+        <div style="display:flex;gap:8px;">
+          <button onclick="downloadPDF()" style="background:linear-gradient(135deg,#7B5FCC,#5B3FAA);border:none;border-radius:6px;color:#fff;cursor:pointer;font-family:var(--display);font-size:11px;font-weight:700;padding:7px 14px;">⬇ Pobierz PDF</button>
+          <button onclick="document.getElementById('pdf-modal').style.display='none'" style="background:none;border:1px solid var(--border2);border-radius:6px;color:var(--text3);cursor:pointer;font-family:var(--mono);font-size:12px;padding:7px 12px;">✕</button>
+        </div>
+      </div>
+      <div id="pdf-preview-body" style="overflow-y:auto;padding:28px 32px;font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1.7;color:var(--text);background:#fff;"></div>
+    </div>
+  </div>
   </div>
 
   <!-- XML -->
@@ -916,7 +931,165 @@ function resetForm(){
   xmlStr=''; recalc();
 }
 
-// ── v0.5: Pobierz + Wyślij do e-mikrofirma ────────────────────────────────
+// ── v0.6: PDF Preview & Download ──────────────────────────────────────────
+let pdfDoc=null;
+
+function buildPDFData(){
+  if(!xmlStr) generate();
+  const nip=g('nip'), comp=g('company_name');
+  const rok=g('rok'), mn=parseInt(g('miesiac')), cel=g('cel_zlozenia');
+  const miesNames=['','Styczeń','Luty','Marzec','Kwiecień','Maj','Czerwiec',
+    'Lipiec','Sierpień','Wrzesień','Październik','Listopad','Grudzień'];
+  const sn=sm(sales,'n'), sv_=sm(sales,'v');
+  const pn=sm(purchases,'n'), pv_=sm(purchases,'v');
+  const p39val=parseFloat(document.getElementById('p39').value)||0;
+  const p48=Math.round(pv_)+p39val;
+  const p20=Math.round(sv_), p43=Math.round(pv_);
+  const res=p20-p48;
+  const p51=res>0?res:0, p53=res<0?Math.abs(res):0, p62=p53;
+  return {nip,comp,rok,mn,cel,miesNames,
+    sn,sv_,pn,pv_,p39val,p48,p20,p43,res,p51,p53,p62,
+    sales:[...sales],purchases:[...purchases]};
+}
+
+function previewPDF(){ //New v0.6
+  const d=buildPDFData();
+  const body=document.getElementById('pdf-preview-body');
+  body.innerHTML=renderPDFHtml(d);
+  const modal=document.getElementById('pdf-modal');
+  modal.style.display='flex';
+}
+
+function renderPDFHtml(d){ //New v0.6
+  const cel=d.cel==='2'?'2 — Korekta deklaracji':'1 — Złożenie pierwotne';
+  const pad2=n=>String(n).padStart(2,'0');
+  let salesRows=d.sales.filter(s=>s.k||s.n).map((s,i)=>`
+    <tr style="border-bottom:1px solid #eee;">
+      <td style="padding:4px 8px;color:#888;">${i+1}</td>
+      <td style="padding:4px 8px;">${s.nr||'—'}</td>
+      <td style="padding:4px 8px;">${s.k||'—'}</td>
+      <td style="padding:4px 8px;text-align:right;">${parseFloat(s.n||0).toFixed(2)}</td>
+      <td style="padding:4px 8px;text-align:right;color:#E85500;font-weight:700;">${parseFloat(s.v||0).toFixed(2)}</td>
+    </tr>`).join('');
+  let purchRows=d.purchases.filter(p=>p.k||p.n).map((p,i)=>`
+    <tr style="border-bottom:1px solid #eee;">
+      <td style="padding:4px 8px;color:#888;">${i+1}</td>
+      <td style="padding:4px 8px;">${p.nr||'—'}</td>
+      <td style="padding:4px 8px;">${p.k||'—'}</td>
+      <td style="padding:4px 8px;text-align:right;">${parseFloat(p.n||0).toFixed(2)}</td>
+      <td style="padding:4px 8px;text-align:right;color:#1A8A50;font-weight:700;">${parseFloat(p.v||0).toFixed(2)}</td>
+    </tr>`).join('');
+
+  return `
+  <div style="max-width:640px;margin:0 auto;">
+    <!-- Header -->
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;padding-bottom:14px;border-bottom:2px solid #E85500;">
+      <div>
+        <div style="font-size:18px;font-weight:800;color:#E85500;letter-spacing:-0.5px;">JPK_V7M (2)</div>
+        <div style="font-size:10px;color:#999;margin-top:2px;">Solar VAT Bridge · www.assetbilans.pl</div>
+      </div>
+      <div style="text-align:right;font-size:10px;color:#666;">
+        <div style="font-weight:700;">${d.rok} / ${pad2(d.mn)} — ${d.miesNames[d.mn]}</div>
+        <div style="margin-top:2px;color:${d.cel==='2'?'#B87800':'#1A8A50'};font-weight:700;">${cel}</div>
+      </div>
+    </div>
+
+    <!-- Podatnik -->
+    <div style="background:#FFF8F0;border:1px solid #F0DEC8;border-radius:8px;padding:12px 16px;margin-bottom:16px;">
+      <div style="font-size:9px;font-weight:700;color:#B08060;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">Podatnik</div>
+      <div style="font-weight:700;font-size:13px;">${d.comp}</div>
+      <div style="color:#888;margin-top:3px;">NIP: <span style="color:#333;font-weight:600;">${d.nip}</span> · KodUrzedu: <span style="color:#333;">1438</span></div>
+    </div>
+
+    <!-- Deklaracja summary -->
+    <div style="margin-bottom:16px;">
+      <div style="font-size:9px;font-weight:700;color:#B08060;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">Deklaracja — Pozycje Szczegółowe</div>
+      <table style="width:100%;border-collapse:collapse;font-size:11px;">
+        <tr style="background:#FFF0E5;">
+          <td style="padding:5px 10px;font-weight:600;">P_19 Podstawa sprzedaży 23%</td>
+          <td style="padding:5px 10px;text-align:right;font-weight:700;">${Math.round(d.sn)} PLN</td>
+        </tr>
+        <tr>
+          <td style="padding:5px 10px;font-weight:600;color:#E85500;">P_20 VAT należny 23%</td>
+          <td style="padding:5px 10px;text-align:right;font-weight:800;color:#E85500;">${d.p20} PLN</td>
+        </tr>
+        <tr style="background:#F0F7F4;">
+          <td style="padding:5px 10px;font-weight:600;">P_42 Podstawa zakupów</td>
+          <td style="padding:5px 10px;text-align:right;font-weight:700;">${Math.round(d.pn)} PLN</td>
+        </tr>
+        <tr>
+          <td style="padding:5px 10px;font-weight:600;color:#1A8A50;">P_43 VAT naliczony</td>
+          <td style="padding:5px 10px;text-align:right;font-weight:800;color:#1A8A50;">${d.p43} PLN</td>
+        </tr>
+        ${d.p39val>0?`<tr style="background:#FFFBE6;">
+          <td style="padding:5px 10px;font-weight:600;color:#B87800;">P_39 Nadwyżka z poprzedniego okresu</td>
+          <td style="padding:5px 10px;text-align:right;font-weight:800;color:#B87800;">${d.p39val} PLN</td>
+        </tr>`:''}
+        <tr style="background:#F0F7F4;">
+          <td style="padding:5px 10px;font-weight:600;color:#1A8A50;">P_48 VAT naliczony łącznie</td>
+          <td style="padding:5px 10px;text-align:right;font-weight:800;color:#1A8A50;">${d.p48} PLN</td>
+        </tr>
+        <tr style="background:${d.p51>0?'#FFF0E5':d.p53>0?'#E6F7EE':'#F5F5F5'};border-top:2px solid ${d.p51>0?'#E85500':d.p53>0?'#1A8A50':'#ccc'};">
+          <td style="padding:7px 10px;font-weight:800;font-size:12px;">
+            ${d.p51>0?'P_51 Do zapłaty':d.p53>0?'P_53 Nadwyżka → P_62':'Saldo zerowe'}
+          </td>
+          <td style="padding:7px 10px;text-align:right;font-weight:800;font-size:14px;color:${d.p51>0?'#E85500':'#1A8A50'};">
+            ${d.p51>0?d.p51:d.p53} PLN
+          </td>
+        </tr>
+        ${d.p62>0?`<tr><td style="padding:5px 10px;font-weight:600;color:#1A8A50;">P_62 Do przeniesienia na następny okres</td>
+          <td style="padding:5px 10px;text-align:right;font-weight:800;color:#1A8A50;">${d.p62} PLN</td></tr>`:''}
+      </table>
+    </div>
+
+    <!-- Ewidencja sprzedaży -->
+    ${salesRows?`<div style="margin-bottom:16px;">
+      <div style="font-size:9px;font-weight:700;color:#B08060;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">Ewidencja Sprzedaży</div>
+      <table style="width:100%;border-collapse:collapse;font-size:11px;border:1px solid #F0DEC8;border-radius:6px;overflow:hidden;">
+        <tr style="background:#FFF0E5;font-size:9px;color:#B08060;">
+          <th style="padding:5px 8px;text-align:left;">#</th><th style="padding:5px 8px;text-align:left;">Nr faktury</th>
+          <th style="padding:5px 8px;text-align:left;">Kontrahent</th><th style="padding:5px 8px;text-align:right;">Netto</th>
+          <th style="padding:5px 8px;text-align:right;">VAT</th>
+        </tr>${salesRows}
+      </table>
+    </div>`:''}
+
+    <!-- Ewidencja zakupów -->
+    ${purchRows?`<div style="margin-bottom:16px;">
+      <div style="font-size:9px;font-weight:700;color:#B08060;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">Ewidencja Zakupów</div>
+      <table style="width:100%;border-collapse:collapse;font-size:11px;border:1px solid #D4EDE1;border-radius:6px;overflow:hidden;">
+        <tr style="background:#E6F7EE;font-size:9px;color:#5A9A78;">
+          <th style="padding:5px 8px;text-align:left;">#</th><th style="padding:5px 8px;text-align:left;">Nr dokumentu</th>
+          <th style="padding:5px 8px;text-align:left;">Dostawca</th><th style="padding:5px 8px;text-align:right;">Netto</th>
+          <th style="padding:5px 8px;text-align:right;">VAT</th>
+        </tr>${purchRows}
+      </table>
+    </div>`:''}
+
+    <!-- Footer -->
+    <div style="margin-top:20px;padding-top:12px;border-top:1px solid #eee;font-size:9px;color:#bbb;text-align:center;">
+      Wygenerowano przez Solar VAT Bridge · assetbilans.pl · ${new Date().toLocaleString('pl-PL')}
+    </div>
+  </div>`;
+}
+
+function downloadPDF(){ //New v0.6
+  const d=buildPDFData();
+  const pad2=n=>String(n).padStart(2,'0');
+  const html=`<!DOCTYPE html><html><head><meta charset="UTF-8">
+    <style>
+      body{font-family:'Courier New',monospace;font-size:11px;margin:20mm 15mm;color:#222;}
+      @media print{@page{size:A4;margin:15mm 12mm;}}
+    </style></head><body>${renderPDFHtml(d)}</body></html>`;
+  const blob=new Blob([html],{type:'text/html;charset=utf-8'});
+  const url=URL.createObjectURL(blob);
+  const w=window.open(url,'_blank');
+  setTimeout(()=>{ w.print(); URL.revokeObjectURL(url); },800);
+  toast('📄 Otwarto do druku / zapisu PDF');
+}
+// ── end v0.6 ───────────────────────────────────────────────────────────────
+
+
 function downloadAndSend(){ //New v0.5
   if(!xmlStr){generate();} // auto-generate if not yet done
   // Step 1: download XML
