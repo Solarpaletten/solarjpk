@@ -845,7 +845,7 @@ ${nrdLine}    <ns2:NazwaDostawcy>${ex(p.k)}</ns2:NazwaDostawcy>
       <ns2:P_49>0</ns2:P_49>
       <ns2:P_50>0</ns2:P_50>
       <ns2:P_51>${res>0?res:0}</ns2:P_51>
-      <ns2:P_52>${res<0?Math.abs(res):0}</ns2:P_52>
+      <ns2:P_52>0</ns2:P_52><!--New: zwrot=0, nadwyżka idzie do P_53/P_62-->
       <ns2:P_53>${p53}</ns2:P_53><!--New-->
       <ns2:P_62>${p62}</ns2:P_62><!--New-->
       <ns2:P_68>0</ns2:P_68>
