@@ -2,7 +2,7 @@
   <ns2:Naglowek>
     <ns2:KodFormularza kodSystemowy="JPK_V7M (2)" wersjaSchemy="1-0E">JPK_VAT</ns2:KodFormularza>
     <ns2:WariantFormularza>2</ns2:WariantFormularza>
-    <ns2:DataWytworzeniaJPK>2026-03-13T12:32:34+01:00</ns2:DataWytworzeniaJPK>
+    <ns2:DataWytworzeniaJPK>2026-03-13T12:31:03+01:00</ns2:DataWytworzeniaJPK>
     <ns2:NazwaSystemu>Solar-VAT-Bridge www.assetbilans.pl</ns2:NazwaSystemu>
     <ns2:CelZlozenia poz="P_7">1</ns2:CelZlozenia>
     <ns2:KodUrzedu>1438</ns2:KodUrzedu>

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Solar VAT Bridge — JPK_V7M Generator</title>
+<title>Solar VAT Bridge — JPK_V7M Generatorv v05.1</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
@@ -393,12 +393,12 @@ select option{background:var(--surface2);}
           </div>
           <div class="field">
             <label>Telefon</label>
-            <input id="phone" type="text" value="+48500820577">
+            <input id="phone" type="text" value="+48732080955">
           </div>
         </div>
         <div class="field">
           <label>Kod Urzędu <span class="ast">*</span></label>
-          <input id="kod_urzedu" type="text" value="1437" placeholder="np. 1437 = Warszawa-Targówek">
+          <input id="kod_urzedu" type="text" value="1438" placeholder="np. 1438 = Warszawa-Targówek">
         </div>
       </div>
     </div>
@@ -880,17 +880,24 @@ ${zakRows}
   setTimeout(()=>p.scrollIntoView({behavior:'smooth',block:'start'}),50);
 }
 
-function hl(xml){
-  return xml
-    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
-    .replace(/(&lt;\/?)(ns2:)([A-Za-z0-9_]+)/g,
-      (m,a,b,c)=>`<span class="xt">${a}${b}${c}</span>`)
-    .replace(/\s([a-zA-Z_:]+)="([^"]*)"/g,
-      (m,a,b)=>` <span class="xa">${a}</span>="<span class="xav">${b}</span>"`)
-    .replace(/&gt;([^&<\n]+)&lt;/g,(m,v)=>{
-      const n=parseFloat(v.trim());
-      return `&gt;<span class="xv${(!isNaN(n)&&n!==0)?' hi':''}">${v}</span>&lt;`;
-    });
+function hl(xml){ //Fixed v0.5.1: span class no longer leaks into tag values
+  // Step 1: escape HTML
+  let s=xml.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  // Step 2: highlight tag names <ns2:Tag> and </ns2:Tag>
+  s=s.replace(/(&lt;\/?)(ns2:)([A-Za-z0-9_]+)/g,
+    (m,a,b,c)=>`<span class="xt">${a}${b}${c}</span>`);
+  // Step 3: highlight attributes — only outside tag values (before &gt;)
+  s=s.replace(/(<span class="xt">[^<]+<\/span>)([^&\n]*)/g,(m,tag,rest)=>{
+    const attrs=rest.replace(/\s([a-zA-Z_:]+)="([^"]*)"/g,
+      (m2,a,b)=>` <span class="xa">${a}</span>="<span class="xav">${b}</span>"`);
+    return tag+attrs;
+  });
+  // Step 4: highlight values between &gt; and &lt; — single line only
+  s=s.replace(/&gt;([^&<\n]+)&lt;\//g,(m,v)=>{
+    const n=parseFloat(v.trim());
+    return `&gt;<span class="xv${(!isNaN(n)&&n!==0)?' hi':''}">${v}</span>&lt;/`;
+  });
+  return s;
 }
 
 function copyXML(){
