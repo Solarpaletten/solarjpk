@@ -505,18 +505,6 @@ select option{background:var(--surface2);}
         <div class="sc-sub" id="s-rl" style="color:var(--text3)">—</div>
       </div>
     </div>
-    <!--New: P_39 input + P_62 display-->
-    <div style="display:flex;gap:20px;padding:10px 16px;border-top:1px solid var(--border);background:var(--surface2);align-items:center;flex-wrap:wrap;">
-      <div style="display:flex;align-items:center;gap:8px;font-family:var(--mono);font-size:11px;">
-        <label style="color:var(--text3);white-space:nowrap;">P_39 nadwyżka z poprz. okresu:</label>
-        <input id="p39" type="number" value="0" min="0" step="1" oninput="recalc()"
-          style="width:80px;padding:5px 8px;border:1px solid var(--green);border-radius:5px;font-family:var(--mono);font-size:12px;background:var(--green-dim);">
-      </div>
-      <div style="display:flex;align-items:center;gap:8px;font-family:var(--mono);font-size:11px;">
-        <label style="color:var(--text3);white-space:nowrap;">P_62 do przeniesienia:</label>
-        <span id="s-p62" style="font-weight:700;color:var(--green);font-size:13px;">0</span>
-      </div>
-    </div>
     <div class="card-actions">
       <button class="btn-primary" onclick="generate()">⬇ Generuj JPK_V7M XML</button>
       <button class="btn-ghost" onclick="copyXML()">📋 Kopiuj XML</button>
@@ -673,14 +661,9 @@ function renderPurchaseRows(){
 function recalc(){
   const sn=sm(sales,'n'), sv_=sm(sales,'v');
   const pn=sm(purchases,'n'), pv=sm(purchases,'v');
-  const p39val=parseFloat(document.getElementById('p39')?.value)||0; //New P_39
-  const p48=pv+p39val;   //New P_48
-  const res=sv_-p48;     //New uwzględnia P_39
-  const p62=res<0?Math.abs(res):0; //New P_62
+  const res=sv_-pv;
   sv('s-sn',sn.toFixed(2)); sv('s-sv',sv_.toFixed(2));
   sv('s-pn',pn.toFixed(2)); sv('s-pv',pv.toFixed(2));
-  const p62el=document.getElementById('s-p62');
-  if(p62el) p62el.textContent=p62.toFixed(0); //New
   const el=document.getElementById('s-res');
   const lb=document.getElementById('s-rl');
   el.textContent=(res>=0?'+':'')+res.toFixed(2)+' PLN';
@@ -688,7 +671,7 @@ function recalc(){
   lb.innerHTML=res>0
     ?'<span style="color:var(--sun)">▲ Podatek do zapłaty (P_51)</span>'
     :res<0
-    ?'<span style="color:var(--green)">▼ Nadwyżka → P_62='+p62.toFixed(0)+'</span>' //New
+    ?'<span style="color:var(--green)">▼ Zwrot VAT (P_52)</span>'
     :'— Saldo zerowe';
 }
 
@@ -703,11 +686,7 @@ function generate(){
   // Declaration fields use integer rounding (as in referens P_19=700, P_42=258)
   const sNet=Math.round(sNetEx), sVat=Math.round(sVatEx);
   const pNet=Math.round(pNetEx), pVat=Math.round(pVatEx);
-  const p39val=Math.round(parseFloat(document.getElementById('p39').value)||0); //New P_39 nadwyżka z poprzedniego okresu
-  const p48=pVat+p39val;  //New P_48 = P_43 + P_39
-  const res=sVat-p48;     //New uwzględnia P_39 w obliczeniu
-  const p53=res<0?Math.abs(res):0; //New P_53 nadwyżka
-  const p62=p53;          //New P_62 do przeniesienia na następny okres
+  const res=sVat-pVat;
   const now=new Date().toISOString().substring(0,19)+'+01:00';
   const lastDay=new Date(parseInt(rok),mn,0).getDate();
   const dataEnd=`${rok}-${pad(mn)}-${pad(lastDay)}`;
@@ -832,7 +811,7 @@ ${nrdLine}    <ns2:NazwaDostawcy>${ex(p.k)}</ns2:NazwaDostawcy>
       <ns2:P_36>0</ns2:P_36>
       <ns2:P_37>${sNet}</ns2:P_37>
       <ns2:P_38>${sVat}</ns2:P_38>
-      <ns2:P_39>${p39val}</ns2:P_39><!--New-->
+      <ns2:P_39>0</ns2:P_39>
       <ns2:P_40>0</ns2:P_40>
       <ns2:P_41>0</ns2:P_41>
       <ns2:P_42>${pNet}</ns2:P_42>
@@ -841,13 +820,13 @@ ${nrdLine}    <ns2:NazwaDostawcy>${ex(p.k)}</ns2:NazwaDostawcy>
       <ns2:P_45>0</ns2:P_45>
       <ns2:P_46>0</ns2:P_46>
       <ns2:P_47>0</ns2:P_47>
-      <ns2:P_48>${p48}</ns2:P_48><!--New-->
+      <ns2:P_48>${pVat}</ns2:P_48>
       <ns2:P_49>0</ns2:P_49>
       <ns2:P_50>0</ns2:P_50>
       <ns2:P_51>${res>0?res:0}</ns2:P_51>
       <ns2:P_52>${res<0?Math.abs(res):0}</ns2:P_52>
-      <ns2:P_53>${p53}</ns2:P_53><!--New-->
-      <ns2:P_62>${p62}</ns2:P_62><!--New-->
+      <ns2:P_53>0</ns2:P_53>
+      <ns2:P_62>0</ns2:P_62>
       <ns2:P_68>0</ns2:P_68>
       <ns2:P_69>0</ns2:P_69>
     </ns2:PozycjeSzczegolowe>
